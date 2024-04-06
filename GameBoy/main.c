@@ -4,6 +4,7 @@
 #include <rand.h>
 #include <gbdk/console.h>
 
+
 #include "sprites/Player.c"
 #include "sprites/Brick.c"
 #include "sprites/Stone.c"
@@ -33,7 +34,7 @@ typedef struct player {
 	INT8 sprX;
 	INT8 sprY;
 
-	INT16 level;
+	INT8 level;
 	INT16 exp;
 	INT16 water;
 
@@ -42,11 +43,11 @@ typedef struct player {
 typedef struct bonus {
 
 	UINT8 frame;
-	UINT32 anim;
+	UINT8 anim;
 
 } bonus;
 
-player _player = { 0, 0, 0, 0, 1, 0, 1500 };
+player _player = { 0, 0, 0, 0, 3, 144, 1000 };
 bonus _bonus = { 0, 0 };
 
 void _fieldInit(void) {
@@ -110,7 +111,7 @@ void _brickDraw(INT8 x, INT8 y, INT8 state, INT8 cnt) {
 	switch (state) {
 
 	case 2:
-		for (UINT16 i = cnt - 2; i < 10; i += 2) {
+		for (UINT8 i = cnt - 2; i < 10; i += 2) {
 			set_sprite_tile(2 + i, 4);
 			move_sprite(2 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
 			set_sprite_tile(3 + i, 6);
@@ -120,7 +121,7 @@ void _brickDraw(INT8 x, INT8 y, INT8 state, INT8 cnt) {
 		break;
 
 	case 3:
-		for (UINT16 i = cnt - 2; i < 10; i += 2) {
+		for (UINT8 i = cnt - 2; i < 10; i += 2) {
 			set_sprite_tile(2 + i, 8);
 			move_sprite(2 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
 			set_sprite_tile(3 + i, 10);
@@ -130,7 +131,7 @@ void _brickDraw(INT8 x, INT8 y, INT8 state, INT8 cnt) {
 		break;
 
 	case 4:
-		for (UINT16 i = cnt - 2; i < 10; i += 2) {
+		for (UINT8 i = cnt - 2; i < 10; i += 2) {
 			set_sprite_tile(2 + i, 12);
 			move_sprite(2 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
 			set_sprite_tile(3 + i, 14);
@@ -226,6 +227,28 @@ void _draw(void) {
 	}
 }
 
+UINT32 power(UINT8 num,UINT8 pow) {
+	UINT32 result = 1;
+	for (UINT8 i = 0; i < pow; i++) {
+		result *= num;
+	}
+	return result;
+}
+
+void DrawUI(void) {
+	for (UINT8 i = 0; i < 4; i++) {
+		UINT16 mod = ((_player.exp / power(10, i)) % 10) + 20;
+		set_bkg_tiles(9-i, 3, 1, 1, &mod);
+		UINT16 needmod = (((((_player.level-1) * 400)+300) / power(10, i)) % 10) + 20;
+		set_bkg_tiles(14 - i, 3, 1, 1, &needmod);
+	}
+	UINT8 lvl = (_player.level + 20);
+	set_bkg_tiles(8, 1, 1, 1, &lvl);
+}
+
+void DrawWater(UINT8 cnt) {
+	set_bkg_tiles(cnt, 6, 1, 1, 0);
+}
 int main(void) {
 
 	_fieldInit();
@@ -238,10 +261,12 @@ int main(void) {
 	set_sprite_data(20, 8, Coin);
 	set_sprite_data(28, 2, Water);
 
-	set_bkg_data(0, 20, HUD);
+	set_bkg_data(0, 31, HUD);
 	set_bkg_tiles(0, 0, 20, 18, BG);
 
 	initrand(0);
+
+
 
 	while (_countStone > 0) { _spawn(1); _countStone -= 1; }
 	while (_countBrick > 0) { _spawn(2); _countBrick -= 1; }
@@ -251,6 +276,13 @@ int main(void) {
 	SHOW_BKG;
 	SHOW_SPRITES;
 	DISPLAY_ON;
+
+	DrawUI();
+
+	for (UINT8 i = 0; i < 11; i++) {
+		UINT32 mod = 30;
+		set_bkg_tiles(2 + i, 6, 1, 1, &mod);
+	}
 
 	while (1) {
 
@@ -266,6 +298,10 @@ int main(void) {
 		_draw();
 
 		_bonus.anim++;
+		_player.water--;
+		if (_player.water % 100 == 0) {
+			DrawWater((_player.water/100)+3);
+		}
 
 		if (_bonus.anim >= 8) { _bonus.frame += 2; _bonus.anim = 0; }
 		if (_bonus.frame > 6) _bonus.frame = 0;
