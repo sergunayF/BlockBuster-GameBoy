@@ -27,9 +27,9 @@ Area                       Addr        Size        Decimal Bytes (Attributes)
      00000008  l__HEADER |    0000000C  l__GSINIT |    00000030  l__HEADER
      0000005C  l__HEADER |    00000063  l__DATA   |    000000AF  l__HEADER
      00000200  s__CODE   |    00000373  l__HOME   |    00000548  l__INITIA
-     00000548  l__INITIA |    00000D89  l__CODE   |    00000F89  s__HOME  
-     000012FC  s__BASE   |    000012FC  s__CODE_0 |    000012FC  s__INITIA
-     000012FC  s__LIT    |    00001844  s__GSINIT |    00001850  s__GSFINA
+     00000548  l__INITIA |    00000F4F  l__CODE   |    0000114F  s__HOME  
+     000014C2  s__BASE   |    000014C2  s__CODE_0 |    000014C2  s__INITIA
+     000014C2  s__LIT    |    00001A0A  s__GSINIT |    00001A16  s__GSFINA
      00002000  _rROMB0   |    00003000  _rROMB1   |    00004000  _rRAMB   
      00008000  __VRAM    |    00008000  __VRAM800 |    00008800  __VRAM880
      00009000  __VRAM900 |    00009800  __SCRN0   |    00009C00  __SCRN1  
@@ -72,23 +72,23 @@ Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_CODE                  00000200    00000D89 =        3465. bytes (REL,CON)
+_CODE                  00000200    00000F4F =        3919. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
-     00000200  __fieldIn |    00000266  __movemen |    000005AB  __playerD
-     000005D9  __brickDr |    00000726  __stoneDr |    0000079E  __bonusDr
-     00000863  __control |    00000897  __smoothM |    00000986  __spawn  
-     00000A0C  __draw    |    00000B0D  _power    |    00000B50  _DrawUI  
-     00000C59  _DrawWate |    00000C71  _main     |    00000E5C  __divsuch
-     00000E62  __modsuch |    00000E6B  __divusch |    00000E74  __modusch
-     00000E81  __divscha |    00000E86  __modscha |    00000E8D  __divsint
-     00000E96  __modsint |    00000EA2  __divucha |    00000EA7  __moducha
-     00000EAE  __divuint |    00000EB7  __moduint |    00000EC3  .div8    
-     00000EC3  .mod8     |    00000ECB  .div16    |    00000ECB  .mod16   
-     00000F01  .divu8    |    00000F01  .modu8    |    00000F04  .divu16  
-     00000F04  .modu16   |    00000F44  __mulsuch |    00000F47  __mulusch
-     00000F50  __mulscha |    00000F58  __mulint  |    00000F77  __mulucha
+     00000200  __fieldIn |    00000266  __movemen |    000006D8  __playerD
+     00000706  __brickDr |    00000853  __stoneDr |    000008CB  __bonusDr
+     00000990  __control |    000009C4  __smoothM |    00000AB3  __spawn  
+     00000B39  __draw    |    00000C3A  _power    |    00000C7D  _DrawUI  
+     00000D86  _DrawWate |    00000DCB  _main     |    00001022  __divsuch
+     00001028  __modsuch |    00001031  __divusch |    0000103A  __modusch
+     00001047  __divscha |    0000104C  __modscha |    00001053  __divsint
+     0000105C  __modsint |    00001068  __divucha |    0000106D  __moducha
+     00001074  __divuint |    0000107D  __moduint |    00001089  .div8    
+     00001089  .mod8     |    00001091  .div16    |    00001091  .mod16   
+     000010C7  .divu8    |    000010C7  .modu8    |    000010CA  .divu16  
+     000010CA  .modu16   |    0000110A  __mulsuch |    0000110D  __mulusch
+     00001116  __mulscha |    0000111E  __mulint  |    0000113D  __mulucha
 ASxxxx Linker V03.00/V05.40 + sdld,  page 4.
 Hexadecimal  [32-Bits]
 
@@ -266,25 +266,25 @@ Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_HOME                  00000F89    00000373 =         883. bytes (REL,CON)
+_HOME                  0000114F    00000373 =         883. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
-     00000F89  .memset_s |    00000F92  .memcpy_s |    00000FAF  .display_
-     00000FAF  _display_ |    00000FC7  _rand     |    00000FC7  _randw   
-     00000FF2  _initrand |    00000FF4  .initrand |    00000FFD  _set_tile
-     00001002  _set_bkg_ |    00001002  _set_win_ |    0000100A  _set_spri
-     0000103A  __modulon |    000010D7  .padup    |    000010D7  _waitpadu
-     000010E7  .jpad     |    000010E7  _joypad   |    0000110F  _waitpad 
-     00001110  .wait_pad |    00001117  __divulon |    0000119E  __mullong
-     0000128E  _set_bkg_ |    000012A2  .set_xy_w |    000012AB  .set_xy_b
-     000012BA  .set_xy_t
+     0000114F  .memset_s |    00001158  .memcpy_s |    00001175  .display_
+     00001175  _display_ |    0000118D  _rand     |    0000118D  _randw   
+     000011B8  _initrand |    000011BA  .initrand |    000011C3  _set_tile
+     000011C8  _set_bkg_ |    000011C8  _set_win_ |    000011D0  _set_spri
+     00001200  __modulon |    0000129D  .padup    |    0000129D  _waitpadu
+     000012AD  .jpad     |    000012AD  _joypad   |    000012D5  _waitpad 
+     000012D6  .wait_pad |    000012DD  __divulon |    00001364  __mullong
+     00001454  _set_bkg_ |    00001468  .set_xy_w |    00001471  .set_xy_b
+     00001480  .set_xy_t
 ASxxxx Linker V03.00/V05.40 + sdld,  page 23.
 Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_INITIALIZER           000012FC    00000548 =        1352. bytes (REL,CON)
+_INITIALIZER           000014C2    00000548 =        1352. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
@@ -293,17 +293,17 @@ Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_GSINIT                00001844    0000000C =          12. bytes (REL,CON)
+_GSINIT                00001A0A    0000000C =          12. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    
-     00001844  gsinit   
+     00001A0A  gsinit   
 ASxxxx Linker V03.00/V05.40 + sdld,  page 25.
 Hexadecimal  [32-Bits]
 
 Area                       Addr        Size        Decimal Bytes (Attributes)
 --------------------       ----        ----        ------- ----- ------------
-_GSFINAL               00001850    00000001 =           1. bytes (REL,CON)
+_GSFINAL               00001A16    00000001 =           1. bytes (REL,CON)
 
         Value  Global            Value  Global            Value  Global    
         -----  ------            -----  ------            -----  ------    

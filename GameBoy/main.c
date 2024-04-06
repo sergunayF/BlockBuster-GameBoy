@@ -47,7 +47,7 @@ typedef struct bonus {
 
 } bonus;
 
-player _player = { 0, 0, 0, 0, 3, 144, 1000 };
+player _player = { 0, 0, 0, 0, 1, 0, 1000 };
 bonus _bonus = { 0, 0 };
 
 void _fieldInit(void) {
@@ -62,6 +62,9 @@ void _fieldInit(void) {
 
 }
 
+void DrawUI(void);
+void DrawWater(UINT8 cnt, UBYTE add);
+
 void _movement(UINT8 _dir) {
 
 	switch (_dir) {
@@ -69,30 +72,30 @@ void _movement(UINT8 _dir) {
 	case 1:
 		if (field[_player.x + 1][_player.y] == 0 && _player.x + 1 < fieldX) { _player.x += 1; return _movement(_dir); }
 		if (field[_player.x + 1][_player.y] == 2 || field[_player.x + 1][_player.y] == 3) { field[_player.x + 1][_player.y] += 1; break; }
-		if (field[_player.x + 1][_player.y] == 4) { field[_player.x + 1][_player.y] = 0; _countBrick += 1; break; }
-		if (field[_player.x + 1][_player.y] == 5) { field[_player.x + 1][_player.y] = 0; _countCoin += 1; break; }
-		if (field[_player.x + 1][_player.y] == 6) { field[_player.x + 1][_player.y] = 0; _countWater += 1; break; }
+		if (field[_player.x + 1][_player.y] == 4) { field[_player.x + 1][_player.y] = 0; _countBrick += 1; _player.exp += 10;DrawUI(); break; }
+		if (field[_player.x + 1][_player.y] == 5) { field[_player.x + 1][_player.y] = 0; _countCoin += 1; _player.exp += 30;DrawUI(); break; }
+		if (field[_player.x + 1][_player.y] == 6) { field[_player.x + 1][_player.y] = 0; _countWater += 1; _player.water += 100; DrawWater((_player.water / 100) + 3, 1); break; }
 		break;
 	case 2:
 		if (field[_player.x][_player.y + 1] == 0 && _player.y + 1 < fieldY) { _player.y += 1; return _movement(_dir); }
 		if (field[_player.x][_player.y + 1] == 2 || field[_player.x][_player.y + 1] == 3) { field[_player.x][_player.y + 1] += 1; break; }
-		if (field[_player.x][_player.y + 1] == 4) { field[_player.x][_player.y + 1] = 0; _countBrick += 1; break; }
-		if (field[_player.x][_player.y + 1] == 5) { field[_player.x][_player.y + 1] = 0; _countCoin += 1; break; }
-		if (field[_player.x][_player.y + 1] == 6) { field[_player.x][_player.y + 1] = 0; _countWater += 1; break; }
+		if (field[_player.x][_player.y + 1] == 4) { field[_player.x][_player.y + 1] = 0; _countBrick += 1; _player.exp += 10; DrawUI(); break; }
+		if (field[_player.x][_player.y + 1] == 5) { field[_player.x][_player.y + 1] = 0; _countCoin += 1; _player.exp += 30; DrawUI(); break; }
+		if (field[_player.x][_player.y + 1] == 6) { field[_player.x][_player.y + 1] = 0; _countWater += 1; _player.water += 100; DrawWater((_player.water / 100) + 3, 1); break; }
 		break;
 	case 3:
 		if (field[_player.x - 1][_player.y] == 0 && _player.x - 1 > -1) { _player.x -= 1; return _movement(_dir); }
 		if (field[_player.x - 1][_player.y] == 2 || field[_player.x - 1][_player.y] == 3) { field[_player.x - 1][_player.y] += 1; break; }
-		if (field[_player.x - 1][_player.y] == 4) { field[_player.x - 1][_player.y] = 0; _countBrick += 1; break; }
-		if (field[_player.x - 1][_player.y] == 5) { field[_player.x - 1][_player.y] = 0; _countCoin += 1; break; }
-		if (field[_player.x - 1][_player.y] == 6) { field[_player.x - 1][_player.y] = 0; _countWater += 1; break; }
+		if (field[_player.x - 1][_player.y] == 4) { field[_player.x - 1][_player.y] = 0; _countBrick += 1; _player.exp += 10; DrawUI(); break; }
+		if (field[_player.x - 1][_player.y] == 5) { field[_player.x - 1][_player.y] = 0; _countCoin += 1; _player.exp += 30; DrawUI(); break; }
+		if (field[_player.x - 1][_player.y] == 6) { field[_player.x - 1][_player.y] = 0; _countWater += 1; _player.water += 100; DrawWater((_player.water / 100) + 3, 1); break; }
 		break;
 	case 4:
 		if (field[_player.x][_player.y - 1] == 0 && _player.y - 1 > -1) { _player.y -= 1; return _movement(_dir); }
 		if (field[_player.x][_player.y - 1] == 2 || field[_player.x][_player.y - 1] == 3) { field[_player.x][_player.y - 1] += 1; break; }
-		if (field[_player.x][_player.y - 1] == 4) { field[_player.x][_player.y - 1] = 0; _countBrick += 1; break; }
-		if (field[_player.x][_player.y - 1] == 5) { field[_player.x][_player.y - 1] = 0; _countCoin += 1; break; }
-		if (field[_player.x][_player.y - 1] == 6) { field[_player.x][_player.y - 1] = 0; _countWater += 1; break; }
+		if (field[_player.x][_player.y - 1] == 4) { field[_player.x][_player.y - 1] = 0; _countBrick += 1; _player.exp += 10; DrawUI(); break; }
+		if (field[_player.x][_player.y - 1] == 5) { field[_player.x][_player.y - 1] = 0; _countCoin += 1; _player.exp += 30; DrawUI(); break; }
+		if (field[_player.x][_player.y - 1] == 6) { field[_player.x][_player.y - 1] = 0; _countWater += 1; _player.water += 100; DrawWater((_player.water / 100) + 3, 1); break; }
 		break;
 	}
 }
@@ -246,8 +249,16 @@ void DrawUI(void) {
 	set_bkg_tiles(8, 1, 1, 1, &lvl);
 }
 
-void DrawWater(UINT8 cnt) {
-	set_bkg_tiles(cnt, 6, 1, 1, 0);
+void DrawWater(UINT8 cnt, UBYTE add) {
+	if (cnt > 11) return;
+	UINT8 tmp;
+	if (add) {
+		tmp = 30;
+		set_bkg_tiles(cnt, 6, 1, 1, &tmp);
+	}
+	else
+		tmp = 0;
+		set_bkg_tiles(cnt+1, 6, 1, 1,&tmp );
 }
 int main(void) {
 
@@ -298,11 +309,12 @@ int main(void) {
 		_draw();
 
 		_bonus.anim++;
-		_player.water--;
+		_player.water-=2;
 		if (_player.water % 100 == 0) {
-			DrawWater((_player.water/100)+3);
+			DrawWater((_player.water/100)+3,0);
 		}
-
+		if (_player.exp >= ((_player.level - 1) * 400) + 300) _player.level++;
+		if (_player.water > 1000) _player.water = 1000;
 		if (_bonus.anim >= 8) { _bonus.frame += 2; _bonus.anim = 0; }
 		if (_bonus.frame > 6) _bonus.frame = 0;
 

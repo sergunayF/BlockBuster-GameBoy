@@ -9,8 +9,6 @@
 ; Public variables in this module
 ;--------------------------------------------------------
 	.globl _main
-	.globl _DrawWater
-	.globl _DrawUI
 	.globl _power
 	.globl __draw
 	.globl __spawn
@@ -44,6 +42,8 @@
 	.globl _Brick
 	.globl _Player
 	.globl _field
+	.globl _DrawUI
+	.globl _DrawWater
 ;--------------------------------------------------------
 ; special function registers
 ;--------------------------------------------------------
@@ -194,13 +194,13 @@ __fieldInit::
 ;main.c:63: }
 	add	sp, #3
 	ret
-;main.c:65: void _movement(UINT8 _dir) {
+;main.c:68: void _movement(UINT8 _dir) {
 ;	---------------------------------
 ; Function _movement
 ; ---------------------------------
 __movement::
 	add	sp, #-6
-;main.c:67: switch (_dir) {
+;main.c:70: switch (_dir) {
 	ld	c, a
 	dec	a
 	jr	Z, 00101$
@@ -212,9 +212,9 @@ __movement::
 	sub	a, #0x04
 	jp	Z,00140$
 	jp	00154$
-;main.c:69: case 1:
+;main.c:72: case 1:
 00101$:
-;main.c:70: if (field[_player.x + 1][_player.y] == 0 && _player.x + 1 < fieldX) { _player.x += 1; return _movement(_dir); }
+;main.c:73: if (field[_player.x + 1][_player.y] == 0 && _player.x + 1 < fieldX) { _player.x += 1; return _movement(_dir); }
 	ld	a, (#__player + 0)
 	inc	a
 	ld	e, a
@@ -286,7 +286,7 @@ __movement::
 	call	__movement
 	jp	00154$
 00103$:
-;main.c:71: if (field[_player.x + 1][_player.y] == 2 || field[_player.x + 1][_player.y] == 3) { field[_player.x + 1][_player.y] += 1; break; }
+;main.c:74: if (field[_player.x + 1][_player.y] == 2 || field[_player.x + 1][_player.y] == 3) { field[_player.x + 1][_player.y] += 1; break; }
 	ldhl	sp,	#5
 	ld	e, (hl)
 	ld	a, e
@@ -333,7 +333,7 @@ __movement::
 	ld	(bc), a
 	jp	00154$
 00106$:
-;main.c:72: if (field[_player.x + 1][_player.y] == 4) { field[_player.x + 1][_player.y] = 0; _countBrick += 1; break; }
+;main.c:75: if (field[_player.x + 1][_player.y] == 4) { field[_player.x + 1][_player.y] = 0; _countBrick += 1; _player.exp += 10;DrawUI(); break; }
 	ld	a, l
 	sub	a, #0x04
 	or	a,h
@@ -344,9 +344,22 @@ __movement::
 	ld	hl, #__countBrick
 	inc	(hl)
 	ld	a, (hl)
+	ld	hl, #(__player + 5)
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	ld	hl, #0x000a
+	add	hl, bc
+	ld	c, l
+	ld	b, h
+	ld	hl, #(__player + 5)
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+	call	_DrawUI
 	jp	00154$
 00109$:
-;main.c:73: if (field[_player.x + 1][_player.y] == 5) { field[_player.x + 1][_player.y] = 0; _countCoin += 1; break; }
+;main.c:76: if (field[_player.x + 1][_player.y] == 5) { field[_player.x + 1][_player.y] = 0; _countCoin += 1; _player.exp += 30;DrawUI(); break; }
 	ld	a, l
 	sub	a, #0x05
 	or	a,h
@@ -357,9 +370,22 @@ __movement::
 	ld	hl, #__countCoin
 	inc	(hl)
 	ld	a, (hl)
+	ld	hl, #(__player + 5)
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	ld	hl, #0x001e
+	add	hl, bc
+	ld	c, l
+	ld	b, h
+	ld	hl, #(__player + 5)
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+	call	_DrawUI
 	jp	00154$
 00111$:
-;main.c:74: if (field[_player.x + 1][_player.y] == 6) { field[_player.x + 1][_player.y] = 0; _countWater += 1; break; }
+;main.c:77: if (field[_player.x + 1][_player.y] == 6) { field[_player.x + 1][_player.y] = 0; _countWater += 1; _player.water += 100; DrawWater((_player.water / 100) + 3, 1); break; }
 	ld	a, l
 	sub	a, #0x06
 	or	a,h
@@ -369,11 +395,36 @@ __movement::
 	ld	(bc), a
 	ld	hl, #__countWater
 	inc	(hl)
-	ld	a, (hl)
+	ld	bc, #__player + 7
+	ld	l, c
+	ld	h, b
+	ld	a,	(hl+)
+	ld	h, (hl)
+;	spillPairReg hl
+;	spillPairReg hl
+;	spillPairReg hl
+	add	a, #0x64
+	ld	e, a
+	ld	a, h
+	adc	a, #0x00
+	ld	d, a
+	ld	a, e
+	ld	(bc), a
+	inc	bc
+	ld	a, d
+	ld	(bc), a
+	ld	bc, #0x0064
+	call	__divsint
+	inc	c
+	inc	c
+	inc	c
+	ld	e, #0x01
+	ld	a, c
+	call	_DrawWater
 	jp	00154$
-;main.c:76: case 2:
+;main.c:79: case 2:
 00114$:
-;main.c:77: if (field[_player.x][_player.y + 1] == 0 && _player.y + 1 < fieldY) { _player.y += 1; return _movement(_dir); }
+;main.c:80: if (field[_player.x][_player.y + 1] == 0 && _player.y + 1 < fieldY) { _player.y += 1; return _movement(_dir); }
 	ld	a, (#__player + 0)
 	ld	e, a
 	rlca
@@ -459,7 +510,7 @@ __movement::
 	call	__movement
 	jp	00154$
 00116$:
-;main.c:78: if (field[_player.x][_player.y + 1] == 2 || field[_player.x][_player.y + 1] == 3) { field[_player.x][_player.y + 1] += 1; break; }
+;main.c:81: if (field[_player.x][_player.y + 1] == 2 || field[_player.x][_player.y + 1] == 3) { field[_player.x][_player.y + 1] += 1; break; }
 	ld	a, (#__player + 0)
 	ld	c, a
 	rlca
@@ -505,7 +556,7 @@ __movement::
 	ld	(bc), a
 	jp	00154$
 00119$:
-;main.c:79: if (field[_player.x][_player.y + 1] == 4) { field[_player.x][_player.y + 1] = 0; _countBrick += 1; break; }
+;main.c:82: if (field[_player.x][_player.y + 1] == 4) { field[_player.x][_player.y + 1] = 0; _countBrick += 1; _player.exp += 10; DrawUI(); break; }
 	ld	a, l
 	sub	a, #0x04
 	or	a,h
@@ -516,9 +567,22 @@ __movement::
 	ld	hl, #__countBrick
 	inc	(hl)
 	ld	a, (hl)
+	ld	hl, #(__player + 5)
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	ld	hl, #0x000a
+	add	hl, bc
+	ld	c, l
+	ld	b, h
+	ld	hl, #(__player + 5)
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+	call	_DrawUI
 	jp	00154$
 00122$:
-;main.c:80: if (field[_player.x][_player.y + 1] == 5) { field[_player.x][_player.y + 1] = 0; _countCoin += 1; break; }
+;main.c:83: if (field[_player.x][_player.y + 1] == 5) { field[_player.x][_player.y + 1] = 0; _countCoin += 1; _player.exp += 30; DrawUI(); break; }
 	ld	a, l
 	sub	a, #0x05
 	or	a,h
@@ -529,9 +593,22 @@ __movement::
 	ld	hl, #__countCoin
 	inc	(hl)
 	ld	a, (hl)
+	ld	hl, #(__player + 5)
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	ld	hl, #0x001e
+	add	hl, bc
+	ld	c, l
+	ld	b, h
+	ld	hl, #(__player + 5)
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+	call	_DrawUI
 	jp	00154$
 00124$:
-;main.c:81: if (field[_player.x][_player.y + 1] == 6) { field[_player.x][_player.y + 1] = 0; _countWater += 1; break; }
+;main.c:84: if (field[_player.x][_player.y + 1] == 6) { field[_player.x][_player.y + 1] = 0; _countWater += 1; _player.water += 100; DrawWater((_player.water / 100) + 3, 1); break; }
 	ld	a, l
 	sub	a, #0x06
 	or	a,h
@@ -541,11 +618,36 @@ __movement::
 	ld	(bc), a
 	ld	hl, #__countWater
 	inc	(hl)
-	ld	a, (hl)
+	ld	bc, #__player + 7
+	ld	l, c
+	ld	h, b
+	ld	a,	(hl+)
+	ld	h, (hl)
+;	spillPairReg hl
+;	spillPairReg hl
+;	spillPairReg hl
+	add	a, #0x64
+	ld	e, a
+	ld	a, h
+	adc	a, #0x00
+	ld	d, a
+	ld	a, e
+	ld	(bc), a
+	inc	bc
+	ld	a, d
+	ld	(bc), a
+	ld	bc, #0x0064
+	call	__divsint
+	inc	c
+	inc	c
+	inc	c
+	ld	e, #0x01
+	ld	a, c
+	call	_DrawWater
 	jp	00154$
-;main.c:83: case 3:
+;main.c:86: case 3:
 00127$:
-;main.c:84: if (field[_player.x - 1][_player.y] == 0 && _player.x - 1 > -1) { _player.x -= 1; return _movement(_dir); }
+;main.c:87: if (field[_player.x - 1][_player.y] == 0 && _player.x - 1 > -1) { _player.x -= 1; return _movement(_dir); }
 	ld	a, (#__player + 0)
 	dec	a
 	ld	e, a
@@ -621,7 +723,7 @@ __movement::
 	call	__movement
 	jp	00154$
 00129$:
-;main.c:85: if (field[_player.x - 1][_player.y] == 2 || field[_player.x - 1][_player.y] == 3) { field[_player.x - 1][_player.y] += 1; break; }
+;main.c:88: if (field[_player.x - 1][_player.y] == 2 || field[_player.x - 1][_player.y] == 3) { field[_player.x - 1][_player.y] += 1; break; }
 	ldhl	sp,	#5
 	ld	e, (hl)
 	ld	a, e
@@ -668,7 +770,7 @@ __movement::
 	ld	(bc), a
 	jp	00154$
 00132$:
-;main.c:86: if (field[_player.x - 1][_player.y] == 4) { field[_player.x - 1][_player.y] = 0; _countBrick += 1; break; }
+;main.c:89: if (field[_player.x - 1][_player.y] == 4) { field[_player.x - 1][_player.y] = 0; _countBrick += 1; _player.exp += 10; DrawUI(); break; }
 	ld	a, l
 	sub	a, #0x04
 	or	a,h
@@ -679,9 +781,22 @@ __movement::
 	ld	hl, #__countBrick
 	inc	(hl)
 	ld	a, (hl)
+	ld	hl, #(__player + 5)
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	ld	hl, #0x000a
+	add	hl, bc
+	ld	c, l
+	ld	b, h
+	ld	hl, #(__player + 5)
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+	call	_DrawUI
 	jp	00154$
 00135$:
-;main.c:87: if (field[_player.x - 1][_player.y] == 5) { field[_player.x - 1][_player.y] = 0; _countCoin += 1; break; }
+;main.c:90: if (field[_player.x - 1][_player.y] == 5) { field[_player.x - 1][_player.y] = 0; _countCoin += 1; _player.exp += 30; DrawUI(); break; }
 	ld	a, l
 	sub	a, #0x05
 	or	a,h
@@ -692,9 +807,22 @@ __movement::
 	ld	hl, #__countCoin
 	inc	(hl)
 	ld	a, (hl)
+	ld	hl, #(__player + 5)
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	ld	hl, #0x001e
+	add	hl, bc
+	ld	c, l
+	ld	b, h
+	ld	hl, #(__player + 5)
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+	call	_DrawUI
 	jp	00154$
 00137$:
-;main.c:88: if (field[_player.x - 1][_player.y] == 6) { field[_player.x - 1][_player.y] = 0; _countWater += 1; break; }
+;main.c:91: if (field[_player.x - 1][_player.y] == 6) { field[_player.x - 1][_player.y] = 0; _countWater += 1; _player.water += 100; DrawWater((_player.water / 100) + 3, 1); break; }
 	ld	a, l
 	sub	a, #0x06
 	or	a,h
@@ -704,11 +832,36 @@ __movement::
 	ld	(bc), a
 	ld	hl, #__countWater
 	inc	(hl)
-	ld	a, (hl)
+	ld	bc, #__player + 7
+	ld	l, c
+	ld	h, b
+	ld	a,	(hl+)
+	ld	h, (hl)
+;	spillPairReg hl
+;	spillPairReg hl
+;	spillPairReg hl
+	add	a, #0x64
+	ld	e, a
+	ld	a, h
+	adc	a, #0x00
+	ld	d, a
+	ld	a, e
+	ld	(bc), a
+	inc	bc
+	ld	a, d
+	ld	(bc), a
+	ld	bc, #0x0064
+	call	__divsint
+	inc	c
+	inc	c
+	inc	c
+	ld	e, #0x01
+	ld	a, c
+	call	_DrawWater
 	jp	00154$
-;main.c:90: case 4:
+;main.c:93: case 4:
 00140$:
-;main.c:91: if (field[_player.x][_player.y - 1] == 0 && _player.y - 1 > -1) { _player.y -= 1; return _movement(_dir); }
+;main.c:94: if (field[_player.x][_player.y - 1] == 0 && _player.y - 1 > -1) { _player.y -= 1; return _movement(_dir); }
 	ld	a, (#__player + 0)
 	ld	e, a
 	rlca
@@ -770,10 +923,10 @@ __movement::
 	jr	NZ, 00142$
 	ldhl	sp,	#2
 	ld	a, (hl)
-	ld	d, a
+	ld	e, a
 	rlca
 	sbc	a, a
-	ld	l, d
+	ld	l, e
 	ld	h, a
 	dec	hl
 	ld	e, h
@@ -797,9 +950,9 @@ __movement::
 	ld	(hl), b
 	ld	a, c
 	call	__movement
-	jr	00154$
+	jp	00154$
 00142$:
-;main.c:92: if (field[_player.x][_player.y - 1] == 2 || field[_player.x][_player.y - 1] == 3) { field[_player.x][_player.y - 1] += 1; break; }
+;main.c:95: if (field[_player.x][_player.y - 1] == 2 || field[_player.x][_player.y - 1] == 3) { field[_player.x][_player.y - 1] += 1; break; }
 	ld	a, (#__player + 0)
 	ld	c, a
 	rlca
@@ -845,7 +998,7 @@ __movement::
 	ld	(bc), a
 	jr	00154$
 00145$:
-;main.c:93: if (field[_player.x][_player.y - 1] == 4) { field[_player.x][_player.y - 1] = 0; _countBrick += 1; break; }
+;main.c:96: if (field[_player.x][_player.y - 1] == 4) { field[_player.x][_player.y - 1] = 0; _countBrick += 1; _player.exp += 10; DrawUI(); break; }
 	ld	a, l
 	sub	a, #0x04
 	or	a,h
@@ -856,9 +1009,22 @@ __movement::
 	ld	hl, #__countBrick
 	inc	(hl)
 	ld	a, (hl)
+	ld	hl, #(__player + 5)
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	ld	hl, #0x000a
+	add	hl, bc
+	ld	c, l
+	ld	b, h
+	ld	hl, #(__player + 5)
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+	call	_DrawUI
 	jr	00154$
 00148$:
-;main.c:94: if (field[_player.x][_player.y - 1] == 5) { field[_player.x][_player.y - 1] = 0; _countCoin += 1; break; }
+;main.c:97: if (field[_player.x][_player.y - 1] == 5) { field[_player.x][_player.y - 1] = 0; _countCoin += 1; _player.exp += 30; DrawUI(); break; }
 	ld	a, l
 	sub	a, #0x05
 	or	a,h
@@ -869,9 +1035,22 @@ __movement::
 	ld	hl, #__countCoin
 	inc	(hl)
 	ld	a, (hl)
+	ld	hl, #(__player + 5)
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	ld	hl, #0x001e
+	add	hl, bc
+	ld	c, l
+	ld	b, h
+	ld	hl, #(__player + 5)
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+	call	_DrawUI
 	jr	00154$
 00150$:
-;main.c:95: if (field[_player.x][_player.y - 1] == 6) { field[_player.x][_player.y - 1] = 0; _countWater += 1; break; }
+;main.c:98: if (field[_player.x][_player.y - 1] == 6) { field[_player.x][_player.y - 1] = 0; _countWater += 1; _player.water += 100; DrawWater((_player.water / 100) + 3, 1); break; }
 	ld	a, l
 	sub	a, #0x06
 	or	a,h
@@ -881,13 +1060,38 @@ __movement::
 	ld	(bc), a
 	ld	hl, #__countWater
 	inc	(hl)
-	ld	a, (hl)
-;main.c:97: }
+	ld	bc, #__player + 7
+	ld	l, c
+	ld	h, b
+	ld	a,	(hl+)
+	ld	h, (hl)
+;	spillPairReg hl
+;	spillPairReg hl
+;	spillPairReg hl
+	add	a, #0x64
+	ld	e, a
+	ld	a, h
+	adc	a, #0x00
+	ld	d, a
+	ld	a, e
+	ld	(bc), a
+	inc	bc
+	ld	a, d
+	ld	(bc), a
+	ld	bc, #0x0064
+	call	__divsint
+	inc	c
+	inc	c
+	inc	c
+	ld	e, #0x01
+	ld	a, c
+	call	_DrawWater
+;main.c:100: }
 00154$:
-;main.c:98: }
+;main.c:101: }
 	add	sp, #6
 	ret
-;main.c:100: void _playerDraw(void) {
+;main.c:103: void _playerDraw(void) {
 ;	---------------------------------
 ; Function _playerDraw
 ; ---------------------------------
@@ -895,7 +1099,7 @@ __playerDraw::
 ;c:\gbdk\include\gb\gb.h:1804: shadow_OAM[nb].tile=tile;
 	ld	hl, #(_shadow_OAM + 2)
 	ld	(hl), #0x00
-;main.c:103: move_sprite(0, 8 + grid + _player.sprX, 16 + (grid * 4) + _player.sprY);
+;main.c:106: move_sprite(0, 8 + grid + _player.sprX, 16 + (grid * 4) + _player.sprY);
 	ld	a, (#(__player + 3) + 0)
 	add	a, #0x50
 	ld	d, a
@@ -912,7 +1116,7 @@ __playerDraw::
 ;c:\gbdk\include\gb\gb.h:1804: shadow_OAM[nb].tile=tile;
 	ld	hl, #(_shadow_OAM + 6)
 	ld	(hl), #0x02
-;main.c:105: move_sprite(1, 8 + grid + _player.sprX + 8, 16 + (grid * 4) + _player.sprY);
+;main.c:108: move_sprite(1, 8 + grid + _player.sprX + 8, 16 + (grid * 4) + _player.sprY);
 	ld	a, (#(__player + 3) + 0)
 	add	a, #0x50
 	ld	e, a
@@ -925,10 +1129,10 @@ __playerDraw::
 	ld	a, e
 	ld	(hl+), a
 	ld	(hl), c
-;main.c:105: move_sprite(1, 8 + grid + _player.sprX + 8, 16 + (grid * 4) + _player.sprY);
-;main.c:107: }
+;main.c:108: move_sprite(1, 8 + grid + _player.sprX + 8, 16 + (grid * 4) + _player.sprY);
+;main.c:110: }
 	ret
-;main.c:109: void _brickDraw(INT8 x, INT8 y, INT8 state, INT8 cnt) {
+;main.c:112: void _brickDraw(INT8 x, INT8 y, INT8 state, INT8 cnt) {
 ;	---------------------------------
 ; Function _brickDraw
 ; ---------------------------------
@@ -936,7 +1140,7 @@ __brickDraw::
 	add	sp, #-5
 	ld	b, a
 	ld	a, e
-;main.c:114: for (UINT8 i = cnt - 2; i < 10; i += 2) {
+;main.c:117: for (UINT8 i = cnt - 2; i < 10; i += 2) {
 	ldhl	sp,	#8
 	ld	c, (hl)
 	dec	c
@@ -959,7 +1163,7 @@ __brickDraw::
 	ld	a, l
 	add	a, #0x20
 	ld	d, a
-;main.c:111: switch (state) {
+;main.c:114: switch (state) {
 	ldhl	sp,	#7
 	ld	a, (hl)
 	sub	a, #0x02
@@ -973,9 +1177,9 @@ __brickDraw::
 	sub	a, #0x04
 	jp	Z,00107$
 	jp	00129$
-;main.c:113: case 2:
+;main.c:116: case 2:
 00101$:
-;main.c:114: for (UINT8 i = cnt - 2; i < 10; i += 2) {
+;main.c:117: for (UINT8 i = cnt - 2; i < 10; i += 2) {
 	ldhl	sp,	#1
 	ld	a, b
 	ld	(hl+), a
@@ -988,7 +1192,7 @@ __brickDraw::
 	ld	a, c
 	sub	a, #0x0a
 	jp	NC, 00129$
-;main.c:115: set_sprite_tile(2 + i, 4);
+;main.c:118: set_sprite_tile(2 + i, 4);
 	ld	b,c
 	inc	c
 	inc	c
@@ -1005,7 +1209,7 @@ __brickDraw::
 	inc	hl
 	inc	hl
 	ld	(hl), #0x04
-;main.c:116: move_sprite(2 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
+;main.c:119: move_sprite(2 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
 	ld	e, c
 ;c:\gbdk\include\gb\gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
 	ld	h, #0x00
@@ -1025,7 +1229,7 @@ __brickDraw::
 	inc	de
 	ld	a, (hl)
 	ld	(de), a
-;main.c:117: set_sprite_tile(3 + i, 6);
+;main.c:120: set_sprite_tile(3 + i, 6);
 	inc	b
 	inc	b
 	inc	b
@@ -1042,7 +1246,7 @@ __brickDraw::
 	inc	hl
 	inc	hl
 	ld	(hl), #0x06
-;main.c:118: move_sprite(3 + i, 8 + grid + (x * 16) + 8, 16 + (grid * 4) + y * 16);
+;main.c:121: move_sprite(3 + i, 8 + grid + (x * 16) + 8, 16 + (grid * 4) + y * 16);
 ;c:\gbdk\include\gb\gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
 	ld	h, #0x00
 ;	spillPairReg hl
@@ -1062,11 +1266,11 @@ __brickDraw::
 	ldhl	sp,	#4
 	ld	a, (hl)
 	ld	(de), a
-;main.c:114: for (UINT8 i = cnt - 2; i < 10; i += 2) {
+;main.c:117: for (UINT8 i = cnt - 2; i < 10; i += 2) {
 	jr	00124$
-;main.c:123: case 3:
+;main.c:126: case 3:
 00104$:
-;main.c:124: for (UINT8 i = cnt - 2; i < 10; i += 2) {
+;main.c:127: for (UINT8 i = cnt - 2; i < 10; i += 2) {
 	ldhl	sp,	#0
 	ld	a, b
 	ld	(hl+), a
@@ -1076,7 +1280,7 @@ __brickDraw::
 	ld	(hl+), a
 	ld	(hl), d
 00126$:
-;main.c:125: set_sprite_tile(2 + i, 8);
+;main.c:128: set_sprite_tile(2 + i, 8);
 	ld	a,c
 	cp	a,#0x0a
 	jp	NC,00129$
@@ -1097,7 +1301,7 @@ __brickDraw::
 	inc	hl
 	inc	hl
 	ld	(hl), #0x08
-;main.c:126: move_sprite(2 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
+;main.c:129: move_sprite(2 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
 	ldhl	sp,	#4
 ;c:\gbdk\include\gb\gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
 	ld	l, (hl)
@@ -1119,7 +1323,7 @@ __brickDraw::
 	inc	de
 	ld	a, (hl)
 	ld	(de), a
-;main.c:127: set_sprite_tile(3 + i, 10);
+;main.c:130: set_sprite_tile(3 + i, 10);
 	inc	c
 	inc	c
 	inc	c
@@ -1137,7 +1341,7 @@ __brickDraw::
 	inc	hl
 	inc	hl
 	ld	(hl), #0x0a
-;main.c:128: move_sprite(3 + i, 8 + grid + (x * 16) + 8, 16 + (grid * 4) + y * 16);
+;main.c:131: move_sprite(3 + i, 8 + grid + (x * 16) + 8, 16 + (grid * 4) + y * 16);
 ;c:\gbdk\include\gb\gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
 	ld	de, #_shadow_OAM+0
 	ld	h, #0x00
@@ -1155,14 +1359,14 @@ __brickDraw::
 	ld	(bc), a
 	inc	bc
 	ldhl	sp,	#3
-;main.c:124: for (UINT8 i = cnt - 2; i < 10; i += 2) {
+;main.c:127: for (UINT8 i = cnt - 2; i < 10; i += 2) {
 	ld	a, (hl+)
 	ld	(bc), a
 	ld	c, (hl)
 	jr	00126$
-;main.c:133: case 4:
+;main.c:136: case 4:
 00107$:
-;main.c:134: for (UINT8 i = cnt - 2; i < 10; i += 2) {
+;main.c:137: for (UINT8 i = cnt - 2; i < 10; i += 2) {
 	ldhl	sp,	#1
 	ld	a, b
 	ld	(hl+), a
@@ -1175,7 +1379,7 @@ __brickDraw::
 	ld	a, c
 	sub	a, #0x0a
 	jr	NC, 00129$
-;main.c:135: set_sprite_tile(2 + i, 12);
+;main.c:138: set_sprite_tile(2 + i, 12);
 	ld	b,c
 	inc	c
 	inc	c
@@ -1192,7 +1396,7 @@ __brickDraw::
 	inc	hl
 	inc	hl
 	ld	(hl), #0x0c
-;main.c:136: move_sprite(2 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
+;main.c:139: move_sprite(2 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
 	ld	e, c
 ;c:\gbdk\include\gb\gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
 	ld	h, #0x00
@@ -1212,7 +1416,7 @@ __brickDraw::
 	inc	de
 	ld	a, (hl)
 	ld	(de), a
-;main.c:137: set_sprite_tile(3 + i, 14);
+;main.c:140: set_sprite_tile(3 + i, 14);
 	inc	b
 	inc	b
 	inc	b
@@ -1229,7 +1433,7 @@ __brickDraw::
 	inc	hl
 	inc	hl
 	ld	(hl), #0x0e
-;main.c:138: move_sprite(3 + i, 8 + grid + (x * 16) + 8, 16 + (grid * 4) + y * 16);
+;main.c:141: move_sprite(3 + i, 8 + grid + (x * 16) + 8, 16 + (grid * 4) + y * 16);
 ;c:\gbdk\include\gb\gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
 	ld	h, #0x00
 ;	spillPairReg hl
@@ -1249,16 +1453,16 @@ __brickDraw::
 	ldhl	sp,	#4
 	ld	a, (hl)
 	ld	(de), a
-;main.c:134: for (UINT8 i = cnt - 2; i < 10; i += 2) {
+;main.c:137: for (UINT8 i = cnt - 2; i < 10; i += 2) {
 	jr	00128$
-;main.c:142: }
+;main.c:145: }
 00129$:
-;main.c:143: }
+;main.c:146: }
 	add	sp, #5
 	pop	hl
 	pop	af
 	jp	(hl)
-;main.c:145: void _stoneDraw(INT8 x, INT8 y, INT8 cnt) {
+;main.c:148: void _stoneDraw(INT8 x, INT8 y, INT8 cnt) {
 ;	---------------------------------
 ; Function _stoneDraw
 ; ---------------------------------
@@ -1266,7 +1470,7 @@ __stoneDraw::
 	add	sp, #-3
 	ld	c, a
 	ld	a, e
-;main.c:147: for (UINT8 i = cnt - 2; i < 4; i += 2) {
+;main.c:150: for (UINT8 i = cnt - 2; i < 4; i += 2) {
 	ldhl	sp,	#5
 	ld	e, (hl)
 	dec	e
@@ -1291,7 +1495,7 @@ __stoneDraw::
 	ld	a, e
 	sub	a, #0x04
 	jr	NC, 00109$
-;main.c:148: set_sprite_tile(12 + i, 16);
+;main.c:151: set_sprite_tile(12 + i, 16);
 	ld	a, e
 	add	a, #0x0c
 	ld	c, a
@@ -1311,7 +1515,7 @@ __stoneDraw::
 	inc	hl
 	pop	de
 	ld	(hl), #0x10
-;main.c:149: move_sprite(12 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
+;main.c:152: move_sprite(12 + i, 8 + grid + (x * 16), 16 + (grid * 4) + y * 16);
 ;c:\gbdk\include\gb\gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
 	ld	h, #0x00
 ;	spillPairReg hl
@@ -1330,7 +1534,7 @@ __stoneDraw::
 	inc	bc
 	ld	a, (hl)
 	ld	(bc), a
-;main.c:150: set_sprite_tile(13 + i, 18);
+;main.c:153: set_sprite_tile(13 + i, 18);
 	ld	a, e
 	add	a, #0x0d
 	ld	c, a
@@ -1350,7 +1554,7 @@ __stoneDraw::
 	inc	hl
 	pop	de
 	ld	(hl), #0x12
-;main.c:151: move_sprite(13 + i, 8 + grid + (x * 16) + 8, 16 + (grid * 4) + y * 16);
+;main.c:154: move_sprite(13 + i, 8 + grid + (x * 16) + 8, 16 + (grid * 4) + y * 16);
 ;c:\gbdk\include\gb\gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
 	ld	l, c
 ;	spillPairReg hl
@@ -1370,24 +1574,24 @@ __stoneDraw::
 	ldhl	sp,	#2
 	ld	a, (hl)
 	ld	(bc), a
-;main.c:147: for (UINT8 i = cnt - 2; i < 4; i += 2) {
+;main.c:150: for (UINT8 i = cnt - 2; i < 4; i += 2) {
 	inc	e
 	inc	e
 	jr	00108$
 00109$:
-;main.c:154: }
+;main.c:157: }
 	add	sp, #3
 	pop	hl
 	inc	sp
 	jp	(hl)
-;main.c:156: void _bonusDraw(INT8 x, INT8 y, INT8 cnt, INT8 water) {
+;main.c:159: void _bonusDraw(INT8 x, INT8 y, INT8 cnt, INT8 water) {
 ;	---------------------------------
 ; Function _bonusDraw
 ; ---------------------------------
 __bonusDraw::
 	add	sp, #-8
 	ld	c, a
-;main.c:158: for (UINT8 i = cnt - 1; i < 3; i++) {
+;main.c:161: for (UINT8 i = cnt - 1; i < 3; i++) {
 	ldhl	sp,	#10
 	ld	a, (hl)
 	dec	a
@@ -1409,7 +1613,7 @@ __bonusDraw::
 	ld	a, (hl)
 	sub	a, #0x03
 	jp	NC, 00111$
-;main.c:160: if (water != 0) { set_sprite_tile(16 + i + water, 28); }
+;main.c:163: if (water != 0) { set_sprite_tile(16 + i + water, 28); }
 	ld	a, (hl-)
 	ld	(hl), a
 	ld	a, (hl)
@@ -1438,10 +1642,10 @@ __bonusDraw::
 	inc	hl
 	inc	hl
 	ld	(hl), #0x1c
-;main.c:160: if (water != 0) { set_sprite_tile(16 + i + water, 28); }
+;main.c:163: if (water != 0) { set_sprite_tile(16 + i + water, 28); }
 	jr	00103$
 00102$:
-;main.c:161: else { set_sprite_tile(16 + i + water, 20 + _bonus.frame); }
+;main.c:164: else { set_sprite_tile(16 + i + water, 20 + _bonus.frame); }
 	ld	a, (#__bonus + 0)
 	add	a, #0x14
 	ldhl	sp,	#2
@@ -1492,9 +1696,9 @@ __bonusDraw::
 	ldhl	sp,	#2
 	ld	a, (hl)
 	ld	(de), a
-;main.c:161: else { set_sprite_tile(16 + i + water, 20 + _bonus.frame); }
+;main.c:164: else { set_sprite_tile(16 + i + water, 20 + _bonus.frame); }
 00103$:
-;main.c:163: move_sprite(16 + i + water, 12 + grid + (x * 16), 16 + (grid * 4) + y * 16);
+;main.c:166: move_sprite(16 + i + water, 12 + grid + (x * 16), 16 + (grid * 4) + y * 16);
 	ldhl	sp,	#7
 	ld	a, (hl-)
 	add	a, #0x10
@@ -1530,22 +1734,22 @@ __bonusDraw::
 	inc	bc
 	ld	a, (hl)
 	ld	(bc), a
-;main.c:158: for (UINT8 i = cnt - 1; i < 3; i++) {
+;main.c:161: for (UINT8 i = cnt - 1; i < 3; i++) {
 	ldhl	sp,	#7
 	inc	(hl)
 	jp	00110$
 00111$:
-;main.c:166: }
+;main.c:169: }
 	add	sp, #8
 	pop	hl
 	pop	af
 	jp	(hl)
-;main.c:168: void _control(void) {
+;main.c:171: void _control(void) {
 ;	---------------------------------
 ; Function _control
 ; ---------------------------------
 __control::
-;main.c:170: switch (joypad()) {
+;main.c:173: switch (joypad()) {
 	call	_joypad
 	cp	a, #0x01
 	jr	Z, 00102$
@@ -1556,35 +1760,35 @@ __control::
 	sub	a, #0x08
 	jr	Z, 00103$
 	ret
-;main.c:172: case J_LEFT: _movement(3); waitpadup(); break;
+;main.c:175: case J_LEFT: _movement(3); waitpadup(); break;
 00101$:
 	ld	a, #0x03
 	call	__movement
 	jp	_waitpadup
-;main.c:173: case J_RIGHT: _movement(1); waitpadup(); break;
+;main.c:176: case J_RIGHT: _movement(1); waitpadup(); break;
 00102$:
 	ld	a, #0x01
 	call	__movement
 	jp	_waitpadup
-;main.c:174: case J_DOWN: _movement(2); waitpadup(); break;
+;main.c:177: case J_DOWN: _movement(2); waitpadup(); break;
 00103$:
 	ld	a, #0x02
 	call	__movement
 	jp	_waitpadup
-;main.c:175: case J_UP: _movement(4); waitpadup(); break;
+;main.c:178: case J_UP: _movement(4); waitpadup(); break;
 00104$:
 	ld	a, #0x04
 	call	__movement
-;main.c:177: }
-;main.c:178: }
+;main.c:180: }
+;main.c:181: }
 	jp	_waitpadup
-;main.c:180: void _smoothMove(void) {
+;main.c:183: void _smoothMove(void) {
 ;	---------------------------------
 ; Function _smoothMove
 ; ---------------------------------
 __smoothMove::
 	add	sp, #-3
-;main.c:182: if (_player.sprX < _player.x * grid) {
+;main.c:185: if (_player.sprX < _player.x * grid) {
 	ld	a, (#(__player + 2) + 0)
 	ldhl	sp,	#0
 	ld	(hl), a
@@ -1627,17 +1831,17 @@ __smoothMove::
 	scf
 00140$:
 	jr	NC, 00102$
-;main.c:183: _player.sprX += speed;
+;main.c:186: _player.sprX += speed;
 	ldhl	sp,	#0
 	ld	a, (hl)
 	add	a, #0x08
 	ld	(#(__player + 2)),a
 00102$:
-;main.c:182: if (_player.sprX < _player.x * grid) {
+;main.c:185: if (_player.sprX < _player.x * grid) {
 	ld	a, (#(__player + 2) + 0)
 	ldhl	sp,	#0
 	ld	(hl), a
-;main.c:186: if (_player.sprX > _player.x * grid) {
+;main.c:189: if (_player.sprX > _player.x * grid) {
 	ld	a, (#__player + 0)
 	ld	l, a
 ;	spillPairReg hl
@@ -1678,13 +1882,13 @@ __smoothMove::
 	scf
 00142$:
 	jr	NC, 00104$
-;main.c:187: _player.sprX -= speed;
+;main.c:190: _player.sprX -= speed;
 	ldhl	sp,	#0
 	ld	a, (hl)
 	add	a, #0xf8
 	ld	(#(__player + 2)),a
 00104$:
-;main.c:190: if (_player.sprY < _player.y * grid) {
+;main.c:193: if (_player.sprY < _player.y * grid) {
 	ld	a, (#(__player + 3) + 0)
 	ldhl	sp,	#0
 	ld	(hl), a
@@ -1727,17 +1931,17 @@ __smoothMove::
 	scf
 00144$:
 	jr	NC, 00106$
-;main.c:191: _player.sprY += speed;
+;main.c:194: _player.sprY += speed;
 	ldhl	sp,	#0
 	ld	a, (hl)
 	add	a, #0x08
 	ld	(#(__player + 3)),a
 00106$:
-;main.c:190: if (_player.sprY < _player.y * grid) {
+;main.c:193: if (_player.sprY < _player.y * grid) {
 	ld	a, (#(__player + 3) + 0)
 	ldhl	sp,	#0
 	ld	(hl), a
-;main.c:194: if (_player.sprY > _player.y * grid) {
+;main.c:197: if (_player.sprY > _player.y * grid) {
 	ld	a, (#(__player + 1) + 0)
 	ld	l, a
 ;	spillPairReg hl
@@ -1778,16 +1982,16 @@ __smoothMove::
 	scf
 00146$:
 	jr	NC, 00109$
-;main.c:195: _player.sprY -= speed;
+;main.c:198: _player.sprY -= speed;
 	ldhl	sp,	#0
 	ld	a, (hl)
 	add	a, #0xf8
 	ld	(#(__player + 3)),a
 00109$:
-;main.c:197: }
+;main.c:200: }
 	add	sp, #3
 	ret
-;main.c:199: void _spawn(UINT8 _block) {
+;main.c:202: void _spawn(UINT8 _block) {
 ;	---------------------------------
 ; Function _spawn
 ; ---------------------------------
@@ -1795,25 +1999,25 @@ __spawn::
 	add	sp, #-4
 	ldhl	sp,	#3
 	ld	(hl), a
-;main.c:201: UINT8 x = ((UINT8)rand()) % fieldX;
+;main.c:204: UINT8 x = ((UINT8)rand()) % fieldX;
 	call	_rand
 	ld	a, e
 	and	a, #0x07
 	ldhl	sp,	#0
 	ld	(hl), a
-;main.c:202: UINT8 y = ((UINT8)rand()) % fieldY;
+;main.c:205: UINT8 y = ((UINT8)rand()) % fieldY;
 	call	_rand
 	ld	a, e
 	and	a, #0x03
 	ldhl	sp,	#1
 	ld	(hl), a
-;main.c:203: UINT8 state = ((UINT8)rand()) % 3;
+;main.c:206: UINT8 state = ((UINT8)rand()) % 3;
 	call	_rand
 	ld	d, #0x00
 	ld	bc, #0x0003
 	call	__modsint
 	ldhl	sp,	#2
-;main.c:205: if (_block != 2) state = 0;
+;main.c:208: if (_block != 2) state = 0;
 	ld	a, c
 	ld	(hl+), a
 	ld	a, (hl)
@@ -1822,7 +2026,7 @@ __spawn::
 	ldhl	sp,	#2
 	ld	(hl), #0x00
 00102$:
-;main.c:207: if (field[x][y] == 0 && x != (UINT8)_player.x && y != (UINT8)_player.y) field[x][y] = _block + state;
+;main.c:210: if (field[x][y] == 0 && x != (UINT8)_player.x && y != (UINT8)_player.y) field[x][y] = _block + state;
 	ld	bc, #_field+0
 	ldhl	sp,	#0
 	ld	e, (hl)
@@ -1885,33 +2089,33 @@ __spawn::
 	ld	(bc), a
 	jr	00108$
 00104$:
-;main.c:208: else _spawn(_block);
+;main.c:211: else _spawn(_block);
 	ldhl	sp,	#3
 	ld	a, (hl)
 	call	__spawn
 00108$:
-;main.c:209: }
+;main.c:212: }
 	add	sp, #4
 	ret
-;main.c:211: void _draw(void) {
+;main.c:214: void _draw(void) {
 ;	---------------------------------
 ; Function _draw
 ; ---------------------------------
 __draw::
 	add	sp, #-12
-;main.c:213: UINT8 _cntBrick = 0;
+;main.c:216: UINT8 _cntBrick = 0;
 	ldhl	sp,	#0
-;main.c:214: UINT8 _cntStone = 0;
+;main.c:217: UINT8 _cntStone = 0;
 	xor	a, a
 	ld	(hl+), a
-;main.c:215: UINT8 _cntCoin = 0;
+;main.c:218: UINT8 _cntCoin = 0;
 	xor	a, a
 	ld	(hl+), a
-;main.c:216: UINT8 _cntWater = 0;
+;main.c:219: UINT8 _cntWater = 0;
 	xor	a, a
 	ld	(hl+), a
 	ld	(hl), a
-;main.c:218: for (INT8 i = 0; i < fieldY; i++) {
+;main.c:221: for (INT8 i = 0; i < fieldY; i++) {
 	ldhl	sp,	#9
 	ld	(hl), #0x00
 00119$:
@@ -1920,7 +2124,7 @@ __draw::
 	xor	a, #0x80
 	sub	a, #0x84
 	jp	NC, 00121$
-;main.c:219: for (INT8 j = 0; j < fieldX; j++) {
+;main.c:222: for (INT8 j = 0; j < fieldX; j++) {
 	ld	a, (hl)
 	add	a, a
 	ldhl	sp,	#4
@@ -1933,7 +2137,7 @@ __draw::
 	xor	a, #0x80
 	sub	a, #0x88
 	jp	NC, 00120$
-;main.c:221: if (field[j][i] == 6) { _cntWater += 1; _bonusDraw(j, i, _cntWater, 3); }
+;main.c:224: if (field[j][i] == 6) { _cntWater += 1; _bonusDraw(j, i, _cntWater, 3); }
 	ld	c, (hl)
 	ld	a, c
 	rlca
@@ -1987,7 +2191,7 @@ __draw::
 	ld	a, (hl)
 	call	__bonusDraw
 00102$:
-;main.c:222: if (field[j][i] == 5) { _cntCoin += 1; _bonusDraw(j, i, _cntCoin, 0); }
+;main.c:225: if (field[j][i] == 5) { _cntCoin += 1; _bonusDraw(j, i, _cntCoin, 0); }
 	ldhl	sp,#5
 	ld	a, (hl+)
 	ld	e, a
@@ -2014,7 +2218,7 @@ __draw::
 	ld	e, a
 	ld	a, (hl)
 	call	__bonusDraw
-;main.c:223: for (UINT8 c = 2; c < 5; c++) { if (field[j][i] == c) { _cntBrick += 2; _brickDraw(j, i, c, _cntBrick); } }
+;main.c:226: for (UINT8 c = 2; c < 5; c++) { if (field[j][i] == c) { _cntBrick += 2; _brickDraw(j, i, c, _cntBrick); } }
 00129$:
 	ldhl	sp,	#5
 	ld	a, (hl+)
@@ -2069,7 +2273,7 @@ __draw::
 	inc	(hl)
 	jr	00113$
 00107$:
-;main.c:224: if (field[j][i] == 1) { _cntStone += 2; _stoneDraw(j, i, _cntStone); }
+;main.c:227: if (field[j][i] == 1) { _cntStone += 2; _stoneDraw(j, i, _cntStone); }
 	ldhl	sp,#5
 	ld	a, (hl+)
 	ld	e, a
@@ -2095,20 +2299,20 @@ __draw::
 	ld	a, (hl)
 	call	__stoneDraw
 00117$:
-;main.c:219: for (INT8 j = 0; j < fieldX; j++) {
+;main.c:222: for (INT8 j = 0; j < fieldX; j++) {
 	ldhl	sp,	#10
 	inc	(hl)
 	jp	00116$
 00120$:
-;main.c:218: for (INT8 i = 0; i < fieldY; i++) {
+;main.c:221: for (INT8 i = 0; i < fieldY; i++) {
 	ldhl	sp,	#9
 	inc	(hl)
 	jp	00119$
 00121$:
-;main.c:228: }
+;main.c:231: }
 	add	sp, #12
 	ret
-;main.c:230: UINT32 power(UINT8 num,UINT8 pow) {
+;main.c:233: UINT32 power(UINT8 num,UINT8 pow) {
 ;	---------------------------------
 ; Function power
 ; ---------------------------------
@@ -2117,7 +2321,7 @@ _power::
 	ld	c, a
 	ldhl	sp,	#4
 	ld	(hl), e
-;main.c:231: UINT32 result = 1;
+;main.c:234: UINT32 result = 1;
 	ldhl	sp,	#0
 	ld	a, #0x01
 	ld	(hl+), a
@@ -2125,14 +2329,14 @@ _power::
 	ld	(hl+), a
 	ld	(hl+), a
 	ld	(hl), a
-;main.c:232: for (UINT8 i = 0; i < pow; i++) {
+;main.c:235: for (UINT8 i = 0; i < pow; i++) {
 	ld	b, #0x00
 00103$:
 	ld	a, b
 	ldhl	sp,	#4
 	sub	a, (hl)
 	jr	NC, 00101$
-;main.c:233: result *= num;
+;main.c:236: result *= num;
 	ld	e, c
 	ld	d, #0x00
 	ld	hl, #0x0000
@@ -2147,7 +2351,7 @@ _power::
 	ld	a, (hl+)
 	ld	e, a
 	ld	d, (hl)
-;main.c:232: for (UINT8 i = 0; i < pow; i++) {
+;main.c:235: for (UINT8 i = 0; i < pow; i++) {
 	call	__mullong
 	ldhl	sp,	#2
 	ld	a, c
@@ -2161,23 +2365,23 @@ _power::
 	inc	b
 	jr	00103$
 00101$:
-;main.c:235: return result;
+;main.c:238: return result;
 	pop	bc
 	push	bc
 	ldhl	sp,	#2
 	ld	a, (hl+)
 	ld	e, a
 	ld	d, (hl)
-;main.c:236: }
+;main.c:239: }
 	add	sp, #5
 	ret
-;main.c:238: void DrawUI(void) {
+;main.c:241: void DrawUI(void) {
 ;	---------------------------------
 ; Function DrawUI
 ; ---------------------------------
 _DrawUI::
 	add	sp, #-10
-;main.c:239: for (UINT8 i = 0; i < 4; i++) {
+;main.c:242: for (UINT8 i = 0; i < 4; i++) {
 	ldhl	sp,	#9
 	ld	(hl), #0x00
 00103$:
@@ -2185,7 +2389,7 @@ _DrawUI::
 	ld	a, (hl)
 	sub	a, #0x04
 	jp	NC, 00101$
-;main.c:240: UINT16 mod = ((_player.exp / power(10, i)) % 10) + 20;
+;main.c:243: UINT16 mod = ((_player.exp / power(10, i)) % 10) + 20;
 	ld	hl, #(__player + 5)
 	ld	a, (hl+)
 	ld	c, a
@@ -2243,7 +2447,7 @@ _DrawUI::
 	ld	a, h
 	ldhl	sp,	#5
 	ld	(hl), a
-;main.c:241: set_bkg_tiles(9-i, 3, 1, 1, &mod);
+;main.c:244: set_bkg_tiles(9-i, 3, 1, 1, &mod);
 	ldhl	sp,	#4
 	ld	c, l
 	ld	b, h
@@ -2272,7 +2476,7 @@ _DrawUI::
 	inc	sp
 	call	_set_bkg_tiles
 	add	sp, #6
-;main.c:242: UINT16 needmod = (((((_player.level-1) * 400)+300) / power(10, i)) % 10) + 20;
+;main.c:245: UINT16 needmod = (((((_player.level-1) * 400)+300) / power(10, i)) % 10) + 20;
 	ld	a, (#(__player + 4) + 0)
 	ld	c, a
 	rlca
@@ -2345,7 +2549,7 @@ _DrawUI::
 	pop	hl
 	ld	a, h
 	ldhl	sp,	#7
-;main.c:243: set_bkg_tiles(14 - i, 3, 1, 1, &needmod);
+;main.c:246: set_bkg_tiles(14 - i, 3, 1, 1, &needmod);
 	ld	(hl+), a
 	ld	a, #0x0e
 	sub	a, (hl)
@@ -2364,17 +2568,17 @@ _DrawUI::
 	inc	sp
 	call	_set_bkg_tiles
 	add	sp, #6
-;main.c:239: for (UINT8 i = 0; i < 4; i++) {
+;main.c:242: for (UINT8 i = 0; i < 4; i++) {
 	ldhl	sp,	#9
 	inc	(hl)
 	jp	00103$
 00101$:
-;main.c:245: UINT8 lvl = (_player.level + 20);
+;main.c:248: UINT8 lvl = (_player.level + 20);
 	ld	a, (#(__player + 4) + 0)
 	add	a, #0x14
 	ldhl	sp,	#7
 	ld	(hl), a
-;main.c:246: set_bkg_tiles(8, 1, 1, 1, &lvl);
+;main.c:249: set_bkg_tiles(8, 1, 1, 1, &lvl);
 	ld	hl, #7
 	add	hl, sp
 	push	hl
@@ -2387,17 +2591,52 @@ _DrawUI::
 	push	af
 	inc	sp
 	call	_set_bkg_tiles
-;main.c:247: }
+;main.c:250: }
 	add	sp, #16
 	ret
-;main.c:249: void DrawWater(UINT8 cnt) {
+;main.c:252: void DrawWater(UINT8 cnt, UBYTE add) {
 ;	---------------------------------
 ; Function DrawWater
 ; ---------------------------------
 _DrawWater::
-;main.c:250: set_bkg_tiles(cnt, 6, 1, 1, 0);
-	ld	de, #0x0000
-	push	de
+	dec	sp
+	ld	b, a
+;main.c:253: if (cnt > 11) return;
+	ld	a, #0x0b
+	sub	a, b
+	jr	C, 00106$
+;main.c:255: if (add) {
+	ld	a, e
+	or	a, a
+	jr	Z, 00104$
+;main.c:256: tmp = 30;
+	ldhl	sp,	#0
+	ld	(hl), #0x1e
+;main.c:257: set_bkg_tiles(cnt, 6, 1, 1, &tmp);
+	ld	hl, #0
+	add	hl, sp
+	push	hl
+	ld	hl, #0x101
+	push	hl
+	ld	a, #0x06
+	push	af
+	inc	sp
+	push	bc
+	inc	sp
+	call	_set_bkg_tiles
+	add	sp, #6
+	jr	00105$
+00104$:
+;main.c:260: tmp = 0;
+	ldhl	sp,	#0
+	ld	(hl), #0x00
+00105$:
+;main.c:261: set_bkg_tiles(cnt+1, 6, 1, 1,&tmp );
+	ld	hl, #0
+	add	hl, sp
+	ld	a, b
+	inc	a
+	push	hl
 	ld	h, #0x01
 ;	spillPairReg hl
 ;	spillPairReg hl
@@ -2417,63 +2656,65 @@ _DrawWater::
 	inc	sp
 	call	_set_bkg_tiles
 	add	sp, #6
-;main.c:251: }
+00106$:
+;main.c:262: }
+	inc	sp
 	ret
-;main.c:252: int main(void) {
+;main.c:263: int main(void) {
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-	add	sp, #-6
-;main.c:254: _fieldInit();
+	add	sp, #-7
+;main.c:265: _fieldInit();
 	call	__fieldInit
-;main.c:256: SPRITES_8x16;
+;main.c:267: SPRITES_8x16;
 	ldh	a, (_LCDC_REG + 0)
 	or	a, #0x04
 	ldh	(_LCDC_REG + 0), a
-;main.c:258: set_sprite_data(0, 4, Player);
+;main.c:269: set_sprite_data(0, 4, Player);
 	ld	de, #_Player
 	push	de
 	ld	hl, #0x400
 	push	hl
 	call	_set_sprite_data
 	add	sp, #4
-;main.c:259: set_sprite_data(4, 12, Brick);
+;main.c:270: set_sprite_data(4, 12, Brick);
 	ld	de, #_Brick
 	push	de
 	ld	hl, #0xc04
 	push	hl
 	call	_set_sprite_data
 	add	sp, #4
-;main.c:260: set_sprite_data(16, 4, Stone);
+;main.c:271: set_sprite_data(16, 4, Stone);
 	ld	de, #_Stone
 	push	de
 	ld	hl, #0x410
 	push	hl
 	call	_set_sprite_data
 	add	sp, #4
-;main.c:261: set_sprite_data(20, 8, Coin);
+;main.c:272: set_sprite_data(20, 8, Coin);
 	ld	de, #_Coin
 	push	de
 	ld	hl, #0x814
 	push	hl
 	call	_set_sprite_data
 	add	sp, #4
-;main.c:262: set_sprite_data(28, 2, Water);
+;main.c:273: set_sprite_data(28, 2, Water);
 	ld	de, #_Water
 	push	de
 	ld	hl, #0x21c
 	push	hl
 	call	_set_sprite_data
 	add	sp, #4
-;main.c:264: set_bkg_data(0, 31, HUD);
+;main.c:275: set_bkg_data(0, 31, HUD);
 	ld	de, #_HUD
 	push	de
 	ld	hl, #0x1f00
 	push	hl
 	call	_set_bkg_data
 	add	sp, #4
-;main.c:265: set_bkg_tiles(0, 0, 20, 18, BG);
+;main.c:276: set_bkg_tiles(0, 0, 20, 18, BG);
 	ld	de, #_BG
 	push	de
 	ld	hl, #0x1214
@@ -2483,12 +2724,12 @@ _main::
 	push	af
 	call	_set_bkg_tiles
 	add	sp, #6
-;main.c:267: initrand(0);
+;main.c:278: initrand(0);
 	ld	de, #0x0000
 	push	de
 	call	_initrand
 	pop	hl
-;main.c:271: while (_countStone > 0) { _spawn(1); _countStone -= 1; }
+;main.c:282: while (_countStone > 0) { _spawn(1); _countStone -= 1; }
 00101$:
 	ld	a, (#__countStone)
 	or	a, a
@@ -2499,7 +2740,7 @@ _main::
 	dec	(hl)
 	ld	a, (hl)
 	jr	00101$
-;main.c:272: while (_countBrick > 0) { _spawn(2); _countBrick -= 1; }
+;main.c:283: while (_countBrick > 0) { _spawn(2); _countBrick -= 1; }
 00104$:
 	ld	a, (#__countBrick)
 	or	a, a
@@ -2510,7 +2751,7 @@ _main::
 	dec	(hl)
 	ld	a, (hl)
 	jr	00104$
-;main.c:273: while (_countCoin > 0) { _spawn(5); _countCoin -= 1; }
+;main.c:284: while (_countCoin > 0) { _spawn(5); _countCoin -= 1; }
 00107$:
 	ld	a, (#__countCoin)
 	or	a, a
@@ -2521,7 +2762,7 @@ _main::
 	dec	(hl)
 	ld	a, (hl)
 	jr	00107$
-;main.c:274: while (_countWater > 0) { _spawn(6); _countWater -= 1; }
+;main.c:285: while (_countWater > 0) { _spawn(6); _countWater -= 1; }
 00110$:
 	ld	a, (#__countWater)
 	or	a, a
@@ -2533,36 +2774,36 @@ _main::
 	ld	a, (hl)
 	jr	00110$
 00112$:
-;main.c:276: SHOW_BKG;
+;main.c:287: SHOW_BKG;
 	ldh	a, (_LCDC_REG + 0)
 	or	a, #0x01
 	ldh	(_LCDC_REG + 0), a
-;main.c:277: SHOW_SPRITES;
+;main.c:288: SHOW_SPRITES;
 	ldh	a, (_LCDC_REG + 0)
 	or	a, #0x02
 	ldh	(_LCDC_REG + 0), a
-;main.c:278: DISPLAY_ON;
+;main.c:289: DISPLAY_ON;
 	ldh	a, (_LCDC_REG + 0)
 	or	a, #0x80
 	ldh	(_LCDC_REG + 0), a
-;main.c:280: DrawUI();
+;main.c:291: DrawUI();
 	call	_DrawUI
-;main.c:282: for (UINT8 i = 0; i < 11; i++) {
+;main.c:293: for (UINT8 i = 0; i < 11; i++) {
 	ld	c, #0x00
-00135$:
+00139$:
 	ld	a, c
 	sub	a, #0x0b
-	jr	NC, 00132$
-;main.c:283: UINT32 mod = 30;
-	ldhl	sp,	#0
+	jr	NC, 00136$
+;main.c:294: UINT32 mod = 30;
+	ldhl	sp,	#2
 	ld	a, #0x1e
 	ld	(hl+), a
 	xor	a, a
 	ld	(hl+), a
 	ld	(hl+), a
 	ld	(hl), a
-;main.c:284: set_bkg_tiles(2 + i, 6, 1, 1, &mod);
-	ldhl	sp,	#0
+;main.c:295: set_bkg_tiles(2 + i, 6, 1, 1, &mod);
+	ldhl	sp,	#2
 	ld	e, l
 	ld	d, h
 	ld	a, c
@@ -2587,12 +2828,12 @@ _main::
 	inc	sp
 	call	_set_bkg_tiles
 	add	sp, #6
-;main.c:282: for (UINT8 i = 0; i < 11; i++) {
+;main.c:293: for (UINT8 i = 0; i < 11; i++) {
 	inc	c
-	jr	00135$
-;main.c:287: while (1) {
-00132$:
-;main.c:289: if (_player.sprX == _player.x * grid && _player.sprY == _player.y * grid) { _control(); }
+	jr	00139$
+;main.c:298: while (1) {
+00136$:
+;main.c:300: if (_player.sprX == _player.x * grid && _player.sprY == _player.y * grid) { _control(); }
 	ld	hl, #__player + 2
 	ld	c, (hl)
 	ld	a, (#__player + 0)
@@ -2643,7 +2884,7 @@ _main::
 	jr	NZ, 00115$
 	call	__control
 00115$:
-;main.c:291: if (_countStone > 0) { _spawn(1); _countStone -= 1; }
+;main.c:302: if (_countStone > 0) { _spawn(1); _countStone -= 1; }
 	ld	a, (#__countStone)
 	or	a, a
 	jr	Z, 00118$
@@ -2653,7 +2894,7 @@ _main::
 	dec	(hl)
 	ld	a, (hl)
 00118$:
-;main.c:292: if (_countBrick > 0) { _spawn(2); _countBrick -= 1; }
+;main.c:303: if (_countBrick > 0) { _spawn(2); _countBrick -= 1; }
 	ld	a, (#__countBrick)
 	or	a, a
 	jr	Z, 00120$
@@ -2663,7 +2904,7 @@ _main::
 	dec	(hl)
 	ld	a, (hl)
 00120$:
-;main.c:293: if (_countCoin > 0) { _spawn(5); _countCoin -= 1; }
+;main.c:304: if (_countCoin > 0) { _spawn(5); _countCoin -= 1; }
 	ld	a, (#__countCoin)
 	or	a, a
 	jr	Z, 00122$
@@ -2673,7 +2914,7 @@ _main::
 	dec	(hl)
 	ld	a, (hl)
 00122$:
-;main.c:294: if (_countWater > 0) { _spawn(6); _countWater -= 1; }
+;main.c:305: if (_countWater > 0) { _spawn(6); _countWater -= 1; }
 	ld	a, (#__countWater)
 	or	a, a
 	jr	Z, 00124$
@@ -2683,46 +2924,45 @@ _main::
 	dec	(hl)
 	ld	a, (hl)
 00124$:
-;main.c:296: _playerDraw();
+;main.c:307: _playerDraw();
 	call	__playerDraw
-;main.c:297: _smoothMove();
+;main.c:308: _smoothMove();
 	call	__smoothMove
-;main.c:298: _draw();
+;main.c:309: _draw();
 	call	__draw
-;main.c:300: _bonus.anim++;
+;main.c:311: _bonus.anim++;
 	ld	a, (#(__bonus + 1) + 0)
 	inc	a
 	ld	(#(__bonus + 1)),a
-;main.c:301: _player.water-=100;
+;main.c:312: _player.water-=2;
 	ld	hl, #(__player + 7)
 	ld	a, (hl+)
 	ld	c, a
 	ld	b, (hl)
-	ld	de, #0x0064
+	ld	de, #0x0002
 	ld	a, c
 	sub	a, e
 	ld	e, a
 	ld	a, b
 	sbc	a, d
-	ldhl	sp,	#5
+	ldhl	sp,	#1
 	ld	(hl-), a
 	ld	(hl), e
 	ld	de, #(__player + 7)
 	ld	a, (hl+)
 	ld	(de), a
 	inc	de
-;main.c:302: if (_player.water % 100 == 0) {
-	ld	a, (hl-)
+	ld	a, (hl)
 	ld	(de), a
+;main.c:313: if (_player.water % 100 == 0) {
 	ld	bc, #0x0064
-	ld	a, (hl+)
-	ld	e, a
-	ld	d, (hl)
+	pop	de
+	push	de
 	call	__modsint
 	ld	a, b
 	or	a, c
 	jr	NZ, 00126$
-;main.c:303: DrawWater((_player.water/100)+3);
+;main.c:314: DrawWater((_player.water/100)+3,0);
 	ld	hl, #(__player + 7)
 	ld	a,	(hl+)
 	ld	h, (hl)
@@ -2736,33 +2976,114 @@ _main::
 	inc	c
 	inc	c
 	inc	c
+	ld	e, #0x00
 	ld	a, c
 	call	_DrawWater
 00126$:
-;main.c:306: if (_bonus.anim >= 8) { _bonus.frame += 2; _bonus.anim = 0; }
+;main.c:316: if (_player.exp >= ((_player.level - 1) * 400) + 300) _player.level++;
+	ld	hl, #(__player + 5)
+	ld	a, (hl+)
+	ld	c, a
+	ld	b, (hl)
+	ld	a, (#(__player + 4) + 0)
+	ldhl	sp,#6
+	ld	(hl), a
+	ld	a, (hl)
+	ld	e, a
+	rlca
+	sbc	a, a
+	ld	l, e
+	ld	h, a
+	dec	hl
+	ld	e, l
+	ld	d, h
+	add	hl, hl
+	add	hl, de
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, de
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	ld	de, #0x012c
+	add	hl, de
+	ld	e, h
+	ld	d, b
+	ld	a, c
+	sub	a, l
+	ld	a, b
+	sbc	a, h
+	bit	7, e
+	jr	Z, 00302$
+	bit	7, d
+	jr	NZ, 00303$
+	cp	a, a
+	jr	00303$
+00302$:
+	bit	7, d
+	jr	Z, 00303$
+	scf
+00303$:
+	jr	C, 00128$
+	ldhl	sp,	#6
+	ld	a, (hl)
+	inc	a
+	ld	(#(__player + 4)),a
+00128$:
+;main.c:317: if (_player.water > 1000) _player.water = 1000;
+	ld	hl, #(__player + 7)
+	ld	a, (hl+)
+	ld	c, a
+	ld	b, (hl)
+	ld	e, b
+	ld	d, #0x03
+	ld	a, #0xe8
+	cp	a, c
+	ld	a, #0x03
+	sbc	a, b
+	bit	7, e
+	jr	Z, 00304$
+	bit	7, d
+	jr	NZ, 00305$
+	cp	a, a
+	jr	00305$
+00304$:
+	bit	7, d
+	jr	Z, 00305$
+	scf
+00305$:
+	jr	NC, 00130$
+	ld	hl, #(__player + 7)
+	ld	a, #0xe8
+	ld	(hl+), a
+	ld	(hl), #0x03
+00130$:
+;main.c:318: if (_bonus.anim >= 8) { _bonus.frame += 2; _bonus.anim = 0; }
 	ld	a, (#(__bonus + 1) + 0)
 	sub	a, #0x08
-	jr	C, 00128$
+	jr	C, 00132$
 	ld	a, (#__bonus + 0)
 	add	a, #0x02
 	ld	(#__bonus),a
 	ld	hl, #(__bonus + 1)
 	ld	(hl), #0x00
-00128$:
-;main.c:307: if (_bonus.frame > 6) _bonus.frame = 0;
+00132$:
+;main.c:319: if (_bonus.frame > 6) _bonus.frame = 0;
 	ld	hl, #__bonus
 	ld	c, (hl)
 	ld	a, #0x06
 	sub	a, c
-	jr	NC, 00130$
+	jr	NC, 00134$
 	ld	hl, #__bonus
 	ld	(hl), #0x00
-00130$:
-;main.c:309: wait_vbl_done();
+00134$:
+;main.c:321: wait_vbl_done();
 	call	_wait_vbl_done
-	jp	00132$
-;main.c:311: }
-	add	sp, #6
+	jp	00136$
+;main.c:323: }
+	add	sp, #7
 	ret
 	.area _CODE
 	.area _INITIALIZER
@@ -4122,8 +4443,8 @@ __xinit___player:
 	.db #0x00	;  0
 	.db #0x00	;  0
 	.db #0x00	;  0
-	.db #0x03	;  3
-	.dw #0x0090
+	.db #0x01	;  1
+	.dw #0x0000
 	.dw #0x03e8
 __xinit___bonus:
 	.db #0x00	; 0

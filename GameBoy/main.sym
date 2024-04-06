@@ -10,34 +10,34 @@ Symbol Table
   2 _BG                                                            000140 GR
   2 _Brick                                                         000040 GR
   2 _Coin                                                          000498 GR
-  0 _DrawUI                                                        000950 GR
-  0 _DrawWater                                                     000A59 GR
+  0 _DrawUI                                                        000A7D GR
+  0 _DrawWater                                                     000B86 GR
   2 _HUD                                                           0002A8 GR
     _LCDC_REG                                                      ****** GX
   2 _Player                                                        000000 GR
   2 _Stone                                                         000100 GR
   2 _Water                                                         000518 GR
   2 __bonus                                                        000545 GR
-  0 __bonusDraw                                                    00059E GR
-  0 __brickDraw                                                    0003D9 GR
-  0 __control                                                      000663 GR
+  0 __bonusDraw                                                    0006CB GR
+  0 __brickDraw                                                    000506 GR
+  0 __control                                                      000790 GR
   2 __countBrick                                                   000538 GR
   2 __countCoin                                                    00053A GR
   2 __countStone                                                   000539 GR
   2 __countWater                                                   00053B GR
     __divsint                                                      ****** GX
     __divulong                                                     ****** GX
-  0 __draw                                                         00080C GR
+  0 __draw                                                         000939 GR
   0 __fieldInit                                                    000000 GR
     __modsint                                                      ****** GX
     __modulong                                                     ****** GX
   0 __movement                                                     000066 GR
     __mullong                                                      ****** GX
   2 __player                                                       00053C GR
-  0 __playerDraw                                                   0003AB GR
-  0 __smoothMove                                                   000697 GR
-  0 __spawn                                                        000786 GR
-  0 __stoneDraw                                                    000526 GR
+  0 __playerDraw                                                   0004D8 GR
+  0 __smoothMove                                                   0007C4 GR
+  0 __spawn                                                        0008B3 GR
+  0 __stoneDraw                                                    000653 GR
   7 __xinit__BG                                                    000140 R
   7 __xinit__Brick                                                 000040 R
   7 __xinit__Coin                                                  000498 R
@@ -54,8 +54,8 @@ Symbol Table
   1 _field                                                         000000 GR
     _initrand                                                      ****** GX
     _joypad                                                        ****** GX
-  0 _main                                                          000A71 GR
-  0 _power                                                         00090D GR
+  0 _main                                                          000BCB GR
+  0 _power                                                         000A3A GR
     _rand                                                          ****** GX
     _set_bkg_data                                                  ****** GX
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 2
@@ -74,7 +74,7 @@ Hexadecimal [24-Bits]
 
 Area Table
 
-   0 _CODE                                      size    C5C   flags    0
+   0 _CODE                                      size    E22   flags    0
    1 _DATA                                      size     50   flags    0
    2 _INITIALIZED                               size    547   flags    0
    3 _DABS                                      size      0   flags    8

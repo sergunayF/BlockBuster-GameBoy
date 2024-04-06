@@ -1,10 +1,6 @@
 ﻿  main.c
   BG.c
-  Brick.c
-  Coin.c
   HUD.c
-  Player.c
-  Stone.c
   Water.c
   Создание кода...
 C:\gbdk\include\asm\types.h(14,1): error C1189: #error:  Unrecognised port
