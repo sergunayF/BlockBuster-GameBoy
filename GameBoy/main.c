@@ -18,7 +18,7 @@
 #define grid 16
 #define speed 8
 
-INT16 field[fieldX][fieldY];
+INT16 field[fieldX][fieldY + 1];
 
 UINT8 _countBrick = 5;
 UINT8 _countStone = 2;
@@ -39,14 +39,26 @@ typedef struct player {
 
 } player;
 
+typedef struct bonus {
+
+	UINT8 frame;
+	UINT32 anim;
+
+} bonus;
+
 player _player = { 0, 0, 0, 0, 1, 0, 1500 };
+bonus _bonus = { 0, 0 };
 
 void _fieldInit(void) {
+
 	for (INT8 i = 0; i < fieldX; i++) {
 		for (INT8 j = 0; j < fieldY; j++) {
 			field[i][j] = 0;
 		}
 	}
+
+	for (INT8 i = 0; i < fieldX; i++) { field[i][4] = -1; }
+
 }
 
 void _movement(UINT8 _dir) {
@@ -140,12 +152,12 @@ void _stoneDraw(INT8 x, INT8 y, INT8 cnt) {
 	}
 }
 
-void _coinDraw(INT8 x, INT8 y, INT8 cnt, INT8 water) {
+void _bonusDraw(INT8 x, INT8 y, INT8 cnt, INT8 water) {
 
 	for (UINT8 i = cnt - 1; i < 3; i++) {
-		if (water != 0) {
-			set_sprite_tile(16 + i + water, 28);
-		} else { set_sprite_tile(16 + i + water, 20); }
+
+		if (water != 0) { set_sprite_tile(16 + i + water, 28); }
+		else { set_sprite_tile(16 + i + water, 20 + _bonus.frame); }
 		
 		move_sprite(16 + i + water, 12 + grid + (x * 16), 16 + (grid * 4) + y * 16);
 		continue;
@@ -205,8 +217,8 @@ void _draw(void) {
 	for (INT8 i = 0; i < fieldY; i++) {
 		for (INT8 j = 0; j < fieldX; j++) {
 
-			if (field[j][i] == 6) { _cntWater += 1; _coinDraw(j, i, _cntWater, 3); }
-			if (field[j][i] == 5) { _cntCoin += 1; _coinDraw(j, i, _cntCoin, 0); }
+			if (field[j][i] == 6) { _cntWater += 1; _bonusDraw(j, i, _cntWater, 3); }
+			if (field[j][i] == 5) { _cntCoin += 1; _bonusDraw(j, i, _cntCoin, 0); }
 			for (UINT8 c = 2; c < 5; c++) { if (field[j][i] == c) { _cntBrick += 2; _brickDraw(j, i, c, _cntBrick); } }
 			if (field[j][i] == 1) { _cntStone += 2; _stoneDraw(j, i, _cntStone); }
 
@@ -231,8 +243,8 @@ int main(void) {
 
 	initrand(0);
 
-	while (_countBrick > 0) { _spawn(2); _countBrick -= 1; }
 	while (_countStone > 0) { _spawn(1); _countStone -= 1; }
+	while (_countBrick > 0) { _spawn(2); _countBrick -= 1; }
 	while (_countCoin > 0) { _spawn(5); _countCoin -= 1; }
 	while (_countWater > 0) { _spawn(6); _countWater -= 1; }
 
@@ -252,6 +264,11 @@ int main(void) {
 		_playerDraw();
 		_smoothMove();
 		_draw();
+
+		_bonus.anim++;
+
+		if (_bonus.anim >= 8) { _bonus.frame += 2; _bonus.anim = 0; }
+		if (_bonus.frame > 6) _bonus.frame = 0;
 
 		wait_vbl_done();
 	}
