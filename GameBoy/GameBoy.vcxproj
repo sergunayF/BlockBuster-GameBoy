@@ -130,7 +130,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Draw.c" />
+    <ClCompile Include="GUI.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="Player.c" />
+    <ClCompile Include="Source.c" />
     <ClCompile Include="sprites\BG.c" />
     <ClCompile Include="sprites\Brick.c" />
     <ClCompile Include="sprites\Coin.c" />
@@ -141,6 +145,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="make.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Draw.h" />
+    <ClInclude Include="GUI.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="Source.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
