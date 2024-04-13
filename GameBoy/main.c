@@ -4,6 +4,9 @@
 #include <rand.h>
 #include <gbdk/console.h>
 
+#include "BlockBusterPreview_data.c"
+#include "BlockBusterPreview_map.c"
+
 #include "sprites/Player.c"
 #include "sprites/Brick.c"
 #include "sprites/Stone.c"
@@ -229,7 +232,6 @@ void _control(void) {
 	case J_RIGHT: _movement(1); waitpadup(); break;
 	case J_DOWN: _movement(2); waitpadup(); break;
 	case J_UP: _movement(4); waitpadup(); break;
-
 	}
 }
 
@@ -304,6 +306,14 @@ void DrawWater(UINT8 cnt, UBYTE add) {
 }
 int main(void) {
 
+	set_bkg_data(0, 185, BlockBusterPreview_data);
+	set_bkg_tiles(0, 0, 20, 18, BlockBusterPreview_map);
+
+	SHOW_BKG;
+	DISPLAY_ON;
+
+	waitpad(J_START);
+
 	_fieldInit();
 
 	SPRITES_8x16;
@@ -329,6 +339,7 @@ int main(void) {
 	SHOW_BKG;
 	SHOW_SPRITES;
 	DISPLAY_ON;
+
 
 	DrawUI();
 

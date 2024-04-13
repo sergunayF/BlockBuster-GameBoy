@@ -8,79 +8,93 @@ Symbol Table
     .__.CPU.                                                    =  000000 L
     .__.H$L.                                                    =  000000 L
   2 _BG                                                            000140 GR
+  0 _BlockBusterPreview_data                                       000066 GR
+  0 _BlockBusterPreview_map                                        000BF6 GR
+  2 _Bomb                                                          000538 R
   2 _Brick                                                         000040 GR
   2 _Coin                                                          000498 GR
-  0 _DrawUI                                                        000A7D GR
-  0 _DrawWater                                                     000B86 GR
+  0 _DrawUI                                                        001A01 GR
+  0 _DrawWater                                                     001B0A GR
   2 _HUD                                                           0002A8 GR
     _LCDC_REG                                                      ****** GX
   2 _Player                                                        000000 GR
   2 _Stone                                                         000100 GR
   2 _Water                                                         000518 GR
-  2 __bonus                                                        000545 GR
-  0 __bonusDraw                                                    0006CB GR
-  0 __brickDraw                                                    000506 GR
-  0 __control                                                      000790 GR
-  2 __countBrick                                                   000538 GR
-  2 __countCoin                                                    00053A GR
-  2 __countStone                                                   000539 GR
-  2 __countWater                                                   00053B GR
+  2 __bomb                                                         000649 GR
+  0 __bombDraw                                                     00150E GR
+  2 __bonus                                                        000647 GR
+  0 __bonusDraw                                                    001449 GR
+  0 __boom                                                         001559 GR
+  0 __brickDraw                                                    001284 GR
+  0 __control                                                      001771 GR
+  2 __countBomb                                                    00063C GR
+  2 __countBrick                                                   000638 GR
+  2 __countCoin                                                    00063A GR
+  2 __countStone                                                   000639 GR
+  2 __countWater                                                   00063B GR
     __divsint                                                      ****** GX
     __divulong                                                     ****** GX
-  0 __draw                                                         000939 GR
+  0 __draw                                                         001894 GR
   0 __fieldInit                                                    000000 GR
+  2 __gameOver                                                     00063D GR
     __modsint                                                      ****** GX
     __modulong                                                     ****** GX
-  0 __movement                                                     000066 GR
+  0 __movement                                                     000D5E GR
     __mullong                                                      ****** GX
-  2 __player                                                       00053C GR
-  0 __playerDraw                                                   0004D8 GR
-  0 __smoothMove                                                   0007C4 GR
-  0 __spawn                                                        0008B3 GR
-  0 __stoneDraw                                                    000653 GR
+  2 __player                                                       00063E GR
+  0 __playerDraw                                                   001256 GR
+  0 __smoothMove                                                   0017A5 GR
+  0 __spawn                                                        0011D0 GR
+  0 __stoneDraw                                                    0013D1 GR
   7 __xinit__BG                                                    000140 R
+  7 __xinit__Bomb                                                  000538 R
   7 __xinit__Brick                                                 000040 R
   7 __xinit__Coin                                                  000498 R
   7 __xinit__HUD                                                   0002A8 R
   7 __xinit__Player                                                000000 R
   7 __xinit__Stone                                                 000100 R
   7 __xinit__Water                                                 000518 R
-  7 __xinit___bonus                                                000545 R
-  7 __xinit___countBrick                                           000538 R
-  7 __xinit___countCoin                                            00053A R
-  7 __xinit___countStone                                           000539 R
-  7 __xinit___countWater                                           00053B R
-  7 __xinit___player                                               00053C R
-  1 _field                                                         000000 GR
-    _initrand                                                      ****** GX
-    _joypad                                                        ****** GX
-  0 _main                                                          000BCB GR
-  0 _power                                                         000A3A GR
-    _rand                                                          ****** GX
-    _set_bkg_data                                                  ****** GX
+  7 __xinit___bomb                                                 000649 R
+  7 __xinit___bonus                                                000647 R
+  7 __xinit___countBomb                                            00063C R
+  7 __xinit___countBrick                                           000638 R
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 2
 Hexadecimal [24-Bits]
 
 Symbol Table
 
+  7 __xinit___countCoin                                            00063A R
+  7 __xinit___countStone                                           000639 R
+  7 __xinit___countWater                                           00063B R
+  7 __xinit___gameOver                                             00063D R
+  7 __xinit___player                                               00063E R
+  1 _field                                                         000000 GR
+    _initrand                                                      ****** GX
+    _joypad                                                        ****** GX
+  0 _main                                                          001B4F GR
+  0 _power                                                         0019BE GR
+    _rand                                                          ****** GX
+    _set_bkg_data                                                  ****** GX
     _set_bkg_tiles                                                 ****** GX
     _set_sprite_data                                               ****** GX
     _shadow_OAM                                                    ****** GX
     _wait_vbl_done                                                 ****** GX
+    _waitpad                                                       ****** GX
     _waitpadup                                                     ****** GX
+
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 3
 Hexadecimal [24-Bits]
 
 Area Table
 
-   0 _CODE                                      size    E22   flags    0
+   0 _CODE                                      size   1E16   flags    0
    1 _DATA                                      size     50   flags    0
-   2 _INITIALIZED                               size    547   flags    0
+   2 _INITIALIZED                               size    64D   flags    0
    3 _DABS                                      size      0   flags    8
    4 _HOME                                      size      0   flags    0
    5 _GSINIT                                    size      0   flags    0
    6 _GSFINAL                                   size      0   flags    0
-   7 _INITIALIZER                               size    547   flags    0
+   7 _INITIALIZER                               size    64D   flags    0
    8 _CABS                                      size      0   flags    8
 

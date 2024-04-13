@@ -130,12 +130,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BlockBusterPreview_data.c" />
+    <ClCompile Include="BlockBusterPreview_map.c" />
     <ClCompile Include="Draw.c" />
     <ClCompile Include="GUI.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="Player.c" />
     <ClCompile Include="Source.c" />
     <ClCompile Include="sprites\BG.c" />
+    <ClCompile Include="sprites\Bomb.c" />
     <ClCompile Include="sprites\Brick.c" />
     <ClCompile Include="sprites\Coin.c" />
     <ClCompile Include="sprites\HUD.c" />
